@@ -3,6 +3,7 @@
 *.opensdf
 *.vcxproj.user
 *.aps
+ipch/
 Debug/
 Release/*.exe
 Release/*.pdb

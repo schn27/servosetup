@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="SerialPort">
+      <UniqueIdentifier>{67367761-8b4e-4946-a72a-199d5921d6d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pugixml">
+      <UniqueIdentifier>{11bf48d1-6fee-4946-aa72-dbaf950875c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="CustomCtrl">
+      <UniqueIdentifier>{7bb159e3-5ab5-4324-b1b7-2969a388d3af}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="crc.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="DataXchg.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="paramconfig.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="protocoladapter.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="servolist.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="ServoSetup.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="ServoSetupDlg.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Thread.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pugixml\pugixml.cpp">
+      <Filter>pugixml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SerialPort\Rs232.cpp">
+      <Filter>SerialPort</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SerialPort\UdpTunnel.cpp">
+      <Filter>SerialPort</Filter>
+    </ClCompile>
+    <ClCompile Include="connection.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CustomCtrl\ListCtrlEx.cpp">
+      <Filter>CustomCtrl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CustomCtrl\MsgHook.cpp">
+      <Filter>CustomCtrl</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\pugixml\pugiconfig.hpp">
+      <Filter>pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pugixml\pugixml.hpp">
+      <Filter>pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SerialPort\nullserialport.h">
+      <Filter>SerialPort</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SerialPort\Rs232.h">
+      <Filter>SerialPort</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SerialPort\serialport.h">
+      <Filter>SerialPort</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SerialPort\UdpTunnel.h">
+      <Filter>SerialPort</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="connection.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="crc.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="DataXchg.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="paramconfig.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="protocoladapter.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="servolist.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="ServoSetup.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="ServoSetupDlg.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="stdint.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CustomCtrl\ListCtrlEx.h">
+      <Filter>CustomCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CustomCtrl\MsgHook.h">
+      <Filter>CustomCtrl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\ServoSetup.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ServoSetup.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ServoSetup.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

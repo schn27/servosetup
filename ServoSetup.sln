@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "servosetup", "ServoSetup\servosetup.vcxproj", "{A4AD438C-0DC1-4C6E-BE8D-1264EB9058A3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A4AD438C-0DC1-4C6E-BE8D-1264EB9058A3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A4AD438C-0DC1-4C6E-BE8D-1264EB9058A3}.Debug|Win32.Build.0 = Debug|Win32
+		{A4AD438C-0DC1-4C6E-BE8D-1264EB9058A3}.Release|Win32.ActiveCfg = Release|Win32
+		{A4AD438C-0DC1-4C6E-BE8D-1264EB9058A3}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+EndGlobal

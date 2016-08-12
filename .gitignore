@@ -1,0 +1,10 @@
+*.suo
+*.sdf
+*.opensdf
+*.vcxproj.user
+*.aps
+Debug/
+Release/*.exe
+Release/*.pdb
+ServoSetup/Release/
+ServoSetup/Debug/

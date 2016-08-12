@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+
+<connect interface="serial">
+    <serial port="COM1" baudrate="115200" />
+</connect>
+
+<preset>
+  <servo group="0" addr="0" name="All" />
+  <servo group="255" addr="255" name="New" />
+</preset>
+
+<params>
+  <param id="0" name="Calibrated" />
+  <param id="1" name="Reversed" />
+  <param id="2" name="Speed" />
+  <param id="3" name="End point 1" />
+  <param id="4" name="End point 2" />
+  <param id="5" name="Center offset" />
+  <param id="6" name="Failsafe mode" />
+  <param id="7" name="Failsafe position" />
+  <param id="8" name="Dead zone" />
+  <param id="9" name="Iout.max" />
+</params>
+
+</config>

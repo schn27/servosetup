@@ -20,7 +20,7 @@ public:
 private:
 	Rs232(const Rs232 &);
 	
-	void init();
+	bool init();
 	void deinit();
 
 	std::string name_;

@@ -21,25 +21,31 @@ void Rs232::unlock() {
 }
 
 uint16_t Rs232::read(void *buf, uint16_t size) {
-	init();
-	uint32_t result = 0;
-	return ReadFile(port_, buf, size, reinterpret_cast<LPDWORD>(&result), NULL) ? result : 0;
+	if (init()) {
+		uint32_t result = 0;
+		return ReadFile(port_, buf, size, reinterpret_cast<LPDWORD>(&result), NULL) ? result : 0;
+	} else {
+		Sleep(timeOut_);
+		return 0;
+	}
 }
 
 void Rs232::write(const void *buf, uint16_t size) {
-	init();
-	uint32_t junk = 0;
-	WriteFile(port_, buf, size, reinterpret_cast<LPDWORD>(&junk), NULL);
+	if (init()) {
+		uint32_t junk = 0;
+		WriteFile(port_, buf, size, reinterpret_cast<LPDWORD>(&junk), NULL);
+	}
 }
 
 void Rs232::clean() {
-	init();
-	PurgeComm(port_, PURGE_RXCLEAR | PURGE_TXCLEAR | PURGE_RXABORT | PURGE_TXABORT);
+	if (init()) {
+		PurgeComm(port_, PURGE_RXCLEAR | PURGE_TXCLEAR | PURGE_RXABORT | PURGE_TXABORT);
+	}
 }
 
-void Rs232::init() {
+bool Rs232::init() {
 	if (initialized_) {
-		return;
+		return true;
 	}
 
 	std::string tmp("\\\\.\\");
@@ -48,7 +54,7 @@ void Rs232::init() {
 	port_ = CreateFile(tmp.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 
 	if (port_ == INVALID_HANDLE_VALUE) {
-		throw std::runtime_error("COM port opening failed");
+		return false;
 	}
 
 	DCB dcb = {0};
@@ -78,10 +84,11 @@ void Rs232::init() {
 
 	if (!success) {
 		deinit();
-		throw std::runtime_error("COM port opening failed");
+		return false;
 	}
 	
 	initialized_ = true;
+	return true;
 }
 
 void Rs232::deinit() {

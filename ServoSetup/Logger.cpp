@@ -1,21 +1,15 @@
 #include "stdafx.h"
 #include "Logger.h"
 
-Logger::Logger() {
-}
-
-Logger::~Logger() {
-}
-
-void Logger::open() {
-	out_.open("d:\\servo.csv", std::ios_base::trunc);
+Logger::Logger(const std::string &filename) {
+	out_.open(filename, std::ios_base::trunc);
 
 	if (out_.is_open()) {
 		out_ << "Pos,Spd,Uin,Iout" << std::endl;
 	}
 }
 
-void Logger::close() {
+Logger::~Logger() {
 	if (out_.is_open()) {
 		out_.close();
 	}

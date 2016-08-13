@@ -5,14 +5,13 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <string>
 
 class Logger {
 public:
-	Logger();
+	Logger(const std::string &filename);
 	~Logger();
 
-	void open();
-	void close();
 	void write(float position, float speed, float uin, float iout);
 
 private:

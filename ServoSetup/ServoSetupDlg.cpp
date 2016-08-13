@@ -5,6 +5,8 @@
 #include "ServoSetupDlg.h"
 #include "../SerialPort/serialport.h"
 #include "connection.h"
+#include "DataXchg.h"
+#include "Logger.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -13,6 +15,7 @@
 CServoSetupDlg::CServoSetupDlg(CWnd* pParent /*=NULL*/)
 		: CDialog(CServoSetupDlg::IDD, pParent)
 		, dataXchg_(NULL)
+		, logger_(NULL)
 		, rs_(NULL)
 		, path_initialized_(false) {
 	hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -20,6 +23,7 @@ CServoSetupDlg::CServoSetupDlg(CWnd* pParent /*=NULL*/)
 
 CServoSetupDlg::~CServoSetupDlg() {
 	delete dataXchg_;
+	delete logger_;
 	delete rs_;
 }
 
@@ -192,7 +196,11 @@ void CServoSetupDlg::OnButtonConnect() {
 		dataXchg_ = new DataXchg(rs_, servo.addr, servo.transit);
 		
 		if (enableLog.GetCheck()) {
-			logger_.open();
+			SYSTEMTIME tm;
+			GetSystemTime(&tm);
+			CString str;
+			str.Format("%02d%02d%02d_%02d%02d%02d.csv", tm.wYear % 100, tm.wMonth, tm.wDay, tm.wHour, tm.wMinute, tm.wSecond);
+			logger_ = new Logger(getPath() + str.GetString());
 		}
 
 		OnBnClickedCfgread();
@@ -211,7 +219,8 @@ void CServoSetupDlg::OnButtonConnect() {
 		delete rs_;
 		rs_ = NULL;
 		
-		logger_.close();
+		delete logger_;
+		logger_ = NULL;
 
 		presetCtrl.EnableWindow();
 		servoSelectCtrl.EnableWindow();
@@ -288,16 +297,18 @@ void CServoSetupDlg::updateActualData() {
 	dataXchg_->getStatus(position, speed, uin, iout);
 
 	CString str;
-	str.Format("%.2f", position);
+	str.Format("%.1f", position);
 	curPosition.SetWindowText(str);
-	str.Format("%.2f", speed);
+	str.Format("%.1f", speed);
 	curSpeed.SetWindowText(str);
-	str.Format("%.2f", uin);
+	str.Format("%.1f", uin);
 	curUin.SetWindowText(str);
-	str.Format("%.2f", iout);
+	str.Format("%.1f", iout);
 	curIout.SetWindowText(str);
 
-	logger_.write(position, speed, uin, iout);
+	if (logger_ != NULL) {
+		logger_->write(position, speed, uin, iout);
+	}
 }
 
 // изменение параметров

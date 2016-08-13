@@ -3,12 +3,12 @@
 #include "afxwin.h"
 #include <string>
 #include "../CustomCtrl/ListCtrlEx.h"
-#include "DataXchg.h"
-#include "Logger.h"
 #include "paramconfig.h"
 #include "servolist.h"
 
-class SeriaPort;
+class SerialPort;
+class Logger;
+class DataXchg;
 
 class CServoSetupDlg : public CDialog {
 public:
@@ -81,8 +81,7 @@ private:
 	ParamConfig paramconfig_;
 	ServoList servolist_;
 	DataXchg *dataXchg_;
-	Logger logger_;
-
+	Logger *logger_;
 	SerialPort *rs_;
 
 	bool path_initialized_;

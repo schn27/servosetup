@@ -21,7 +21,7 @@ void Logger::close() {
 	}
 }
 
-void Logger::write(int position, int speed, int uin, int iout) {
+void Logger::write(float position, float speed, float uin, float iout) {
 	if (out_.is_open()) {
 		out_ << position << "," << speed << "," << uin << "," << iout << std::endl;
 	}

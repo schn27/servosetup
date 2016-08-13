@@ -139,6 +139,9 @@
     <ClInclude Include="..\CustomCtrl\MsgHook.h">
       <Filter>CustomCtrl</Filter>
     </ClInclude>
+    <ClInclude Include="ScopedLock.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\ServoSetup.ico">

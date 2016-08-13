@@ -280,21 +280,21 @@ void CServoSetupDlg::updateActualData() {
 	const std::string & info = dataXchg_->getInfo();
 	curInfo.SetWindowText(info.c_str());
 
-	int position = 0;
-	int speed = 0;
-	int uin = 0;
-	int iout = 0;
+	float position = 0;
+	float speed = 0;
+	float uin = 0;
+	float iout = 0;
 
 	dataXchg_->getStatus(position, speed, uin, iout);
 
 	CString str;
-	str.Format("%d", position);
+	str.Format("%.2f", position);
 	curPosition.SetWindowText(str);
-	str.Format("%d", speed);
+	str.Format("%.2f", speed);
 	curSpeed.SetWindowText(str);
-	str.Format("%d", uin);
+	str.Format("%.2f", uin);
 	curUin.SetWindowText(str);
-	str.Format("%d", iout);
+	str.Format("%.2f", iout);
 	curIout.SetWindowText(str);
 
 	logger_.write(position, speed, uin, iout);

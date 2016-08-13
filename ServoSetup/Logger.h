@@ -13,7 +13,7 @@ public:
 
 	void open();
 	void close();
-	void write(int position, int speed, int uin, int iout);
+	void write(float position, float speed, float uin, float iout);
 
 private:
 	std::ofstream out_;

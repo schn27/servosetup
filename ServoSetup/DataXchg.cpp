@@ -2,6 +2,7 @@
 #include "protocol.h"
 #include "protocoladapter.h"
 #include "DataXchg.h"
+#include "ScopedLock.h"
 
 namespace {
 
@@ -16,6 +17,13 @@ enum {
 	idManualSetup = 0x38,
 	idTransit = 0xF0
 };
+
+namespace servoconsts {
+const float PositionScale = 90.0f / 1500.0f;
+const float SpeedScale = 3;
+const float UinScale = 0.012f;
+const float IoutScale = 0.001f;
+}
 
 }
 
@@ -58,19 +66,17 @@ DataXchg::~DataXchg() {
 	delete [] buffer2_;
 }
 
-void DataXchg::getStatus(int &position, int &speed, int &uin, int &iout) {
-	criticalSection_.Lock();
+void DataXchg::getStatus(float &position, float &speed, float &uin, float &iout) {
+	ScopedLock<CCriticalSection> _(criticalSection_);
 	position = position_;
 	speed = speed_;
 	uin = uin_;
 	iout = iout_;
-	criticalSection_.Unlock();
 }
 
 void DataXchg::setPosition(int value) {
-	criticalSection_.Lock();
+	ScopedLock<CCriticalSection> _(criticalSection_);
 	cmdPosition_ = value;
-	criticalSection_.Unlock();
 }
 
 
@@ -79,9 +85,8 @@ void DataXchg::reqParam(size_t index) {
 		return;
 	}
 
-	criticalSection_.Lock();
+	ScopedLock<CCriticalSection> _(criticalSection_);
 	params_[index].state = eParReadReq;
-	criticalSection_.Unlock();
 }
 
 
@@ -92,7 +97,7 @@ bool DataXchg::getParam(size_t index, int16_t &value) {
 
 	bool res = false;
 
-	criticalSection_.Lock();
+	ScopedLock<CCriticalSection> _(criticalSection_);
 
 	param_t &param = params_[index];
 	value = param.value;
@@ -101,8 +106,6 @@ bool DataXchg::getParam(size_t index, int16_t &value) {
 		param.state = eParIdle;
 		res = true;
 	}
-
-	criticalSection_.Unlock();
 
 	return res;
 }
@@ -113,13 +116,10 @@ void DataXchg::setParam(size_t index, int16_t value) {
 		return;
 	}
 
-	criticalSection_.Lock();
-
+	ScopedLock<CCriticalSection> _(criticalSection_);
 	param_t &param = params_[index];
 	param.value = value;
 	param.state = eParWriteReq;
-
-	criticalSection_.Unlock();
 }
 
 
@@ -156,7 +156,6 @@ int DataXchg::threadProc(void * /*p*/) {
 	return 0;
 }
 
-
 void DataXchg::updateInfo() {
 	if (!noInfo_ || broadcast_) {
 		return;
@@ -173,11 +172,15 @@ void DataXchg::updateInfo() {
 	noInfo_ = false;
 }
 
-
 void DataXchg::update() {
-	criticalSection_.Lock();
-	uint8_t buf[8] = {cmdPosition_, cmdPosition_ >> 8, 3};
-	criticalSection_.Unlock();
+	uint8_t buf[8];
+	
+	{
+		ScopedLock<CCriticalSection> _(criticalSection_);
+		buf[0] = cmdPosition_;
+		buf[1] = cmdPosition_ >> 8;
+		buf[2] = 3;
+	}
 
 	uint8_t bufsize = 0;
 	
@@ -200,31 +203,30 @@ void DataXchg::update() {
 	}
 	
 	if (bufsize == 8) {
-		criticalSection_.Lock();
-		position_ = static_cast<int16_t>(buf[0] + buf[1] * 256);
-		speed_ = static_cast<int16_t>(buf[2] + buf[3] * 256);
-		uin_ = static_cast<uint16_t>(buf[4] + buf[5] * 256);
-		iout_ = static_cast<uint16_t>(buf[6] + buf[7] * 256);
-		criticalSection_.Unlock();
+		ScopedLock<CCriticalSection> _(criticalSection_);
+		position_ = static_cast<int16_t>(buf[0] + buf[1] * 256) * servoconsts::PositionScale;
+		speed_ = static_cast<int16_t>(buf[2] + buf[3] * 256) * servoconsts::SpeedScale;
+		uin_ = static_cast<uint16_t>(buf[4] + buf[5] * 256) * servoconsts::UinScale;
+		iout_ = static_cast<uint16_t>(buf[6] + buf[7] * 256) * servoconsts::IoutScale;
 	}
 }
-
 
 void DataXchg::updateParams(bool all) {
 	bool updated = false;
 	
 	for (int i = 0, n = params_.size(); (i < n) && (!updated || all); ++i) {
-		criticalSection_.Lock();
-		param_t param = params_[i];
-		criticalSection_.Unlock();
+		param_t param;
+		{
+			ScopedLock<CCriticalSection> _(criticalSection_);
+			param = params_[i];
+		}
 
 		if (param.state == eParReadReq)	{
 			if (readParam(i, param.value)) {
 				param.state = eParReadResp;
 	
-				criticalSection_.Lock();
+				ScopedLock<CCriticalSection> _(criticalSection_);
 				params_[i] = param;
-				criticalSection_.Unlock();
 			}
 
 			updated = true;
@@ -232,16 +234,14 @@ void DataXchg::updateParams(bool all) {
 			if (writeParam(i, param.value)) {
 				param.state = eParIdle;
 
-				criticalSection_.Lock();
+				ScopedLock<CCriticalSection> _(criticalSection_);
 				params_[i] = param;
-				criticalSection_.Unlock();
 			}
 
 			updated = true;
 		}
 	}
 }
-
 
 bool DataXchg::writeParam(uint8_t id, int16_t value) {
 	for (int i = 0; i < 3; ++i) {
@@ -254,7 +254,6 @@ bool DataXchg::writeParam(uint8_t id, int16_t value) {
 
 	return false;
 }
-
 
 bool DataXchg::readParam(uint8_t id, int16_t &value) {
 	value = 0;
@@ -271,7 +270,6 @@ bool DataXchg::readParam(uint8_t id, int16_t &value) {
 	return false;
 }
 
-
 void DataXchg::doWriteAddr() {
 	if (broadcast_) {
 		return;
@@ -287,7 +285,6 @@ void DataXchg::doWriteAddr() {
 		}
 	}
 }
-
 
 void DataXchg::doManual(uint8_t cmd) {
 	if (broadcast_) {
@@ -307,7 +304,6 @@ void DataXchg::doManual(uint8_t cmd) {
 		}
 	}
 }
-
 
 // отправка запроса и приём ответа
 bool DataXchg::request(uint8_t addr, uint8_t id, uint8_t *data, uint8_t datasize, uint8_t *response, uint8_t &responsesize) {
@@ -345,7 +341,6 @@ bool DataXchg::request(uint8_t addr, uint8_t id, uint8_t *data, uint8_t datasize
 
 	return true;
 }
-
 
 // отправка запроса без ожидания ответа
 bool DataXchg::requestNoAnswer(uint8_t addr, uint8_t id, uint8_t *data, uint8_t datasize) {

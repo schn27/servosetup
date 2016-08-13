@@ -24,7 +24,7 @@ public:
 		return info_;
 	}
 
-	void getStatus(int &position, int &speed, int &uin, int &iout);
+	void getStatus(float &position, float &speed, float &uin, float &iout);
 	void reqParam(size_t index);
 	bool getParam(size_t index, int16_t &value);
 	void setParam(size_t index, int16_t value);
@@ -92,10 +92,10 @@ private:
 	std::vector<param_t> params_;
 
 	int cmdPosition_;
-	int position_;
-	int speed_;
-	int uin_;
-	int iout_;
+	float position_;
+	float speed_;
+	float uin_;
+	float iout_;
 	std::string info_;
 	bool noInfo_;
 

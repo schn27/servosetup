@@ -157,6 +157,7 @@
     <ClInclude Include="protocol.h" />
     <ClInclude Include="protocoladapter.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="ScopedLock.h" />
     <ClInclude Include="servolist.h" />
     <ClInclude Include="ServoSetup.h" />
     <ClInclude Include="ServoSetupDlg.h" />

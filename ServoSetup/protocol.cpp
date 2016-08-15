@@ -44,7 +44,6 @@ bool Protocol::send(uint8_t addr, uint8_t id, int size) {
 	return true;
 }
 
-
 // формирование и отправка пакета (с копированием поля данных)
 bool Protocol::send(uint8_t addr, uint8_t id, const uint8_t *data, int size) {
 	if (size > buffer_size_ - 4) {
@@ -55,7 +54,6 @@ bool Protocol::send(uint8_t addr, uint8_t id, const uint8_t *data, int size) {
 	
 	return send(addr, id, size);
 }
-
 
 // приём пакета
 bool Protocol::receive(uint8_t &addr, uint8_t &id, int &size) {
@@ -90,7 +88,6 @@ bool Protocol::receive(uint8_t &addr, uint8_t &id, int &size) {
 	return true;
 }
 
-
 // приём пакета с проверкой addr и id
 bool Protocol::receiveResponse(uint8_t addr, uint8_t id, int &size) {
 	uint8_t addr_recv = 0;
@@ -102,7 +99,6 @@ bool Protocol::receiveResponse(uint8_t addr, uint8_t id, int &size) {
 	
 	return addr_recv == addr && id_recv == id;
 }
-
 
 std::string Protocol::getTimeStr() const {
 	SYSTEMTIME st; 

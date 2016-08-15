@@ -434,7 +434,6 @@ const std::string & CServoSetupDlg::getPath() {
 	return path_;
 }
 
-
 void CServoSetupDlg::OnCbnSelchangePreset() {
 	UpdateData(TRUE);
 	updateServoPreset(preset.GetBuffer());

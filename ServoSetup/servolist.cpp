@@ -26,7 +26,6 @@ void ServoList::read(const std::string &filename) {
 	}
 }
 
-
 void ServoList::readPreset(const pugi::xml_node &preset_node) {
 	std::string preset_name = preset_node.attribute("name").value();
 
@@ -48,7 +47,6 @@ void ServoList::readPreset(const pugi::xml_node &preset_node) {
 	}
 }
 
-
 void ServoList::getPresetNames(std::vector<std::string> &names) const {
 	names.clear();
 
@@ -56,7 +54,6 @@ void ServoList::getPresetNames(std::vector<std::string> &names) const {
 		names.push_back(p->first);
 	}
 }
-
 
 void ServoList::getServoNames(const std::string &preset, std::vector<std::string> &names) const {
 	names.clear();
@@ -69,7 +66,6 @@ void ServoList::getServoNames(const std::string &preset, std::vector<std::string
 			names.push_back(s->name);
 	}
 }
-
 
 size_t ServoList::getNumOfServos(const std::string &preset) const {
 	preset_t::const_iterator p = preset_.find(preset);

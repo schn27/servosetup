@@ -79,7 +79,6 @@ void DataXchg::setPosition(int value) {
 	cmdPosition_ = value;
 }
 
-
 void DataXchg::reqParam(size_t index) {
 	if (index >= params_.size()) {
 		return;
@@ -88,7 +87,6 @@ void DataXchg::reqParam(size_t index) {
 	ScopedLock<CCriticalSection> _(criticalSection_);
 	params_[index].state = eParReadReq;
 }
-
 
 bool DataXchg::getParam(size_t index, int16_t &value) {
 	if (index >= params_.size()) {
@@ -110,7 +108,6 @@ bool DataXchg::getParam(size_t index, int16_t &value) {
 	return res;
 }
 
-
 void DataXchg::setParam(size_t index, int16_t value) {
 	if (index >= params_.size()) {
 		return;
@@ -121,7 +118,6 @@ void DataXchg::setParam(size_t index, int16_t value) {
 	param.value = value;
 	param.state = eParWriteReq;
 }
-
 
 void DataXchg::setAddrCfg(uint8_t addr, uint8_t addrAlias) {
 	cfgAddr_ = addr;

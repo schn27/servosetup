@@ -6,7 +6,6 @@
 
 #include "resource.h"		// main symbols
 
-
 class CServoSetup : public CWinApp {
 public:
 	CServoSetup();

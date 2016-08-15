@@ -6,7 +6,6 @@
 #define new DEBUG_NEW
 #endif
 
-
 BEGIN_MESSAGE_MAP(CServoSetup, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
 END_MESSAGE_MAP()

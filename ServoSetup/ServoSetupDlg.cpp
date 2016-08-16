@@ -199,8 +199,12 @@ void CServoSetupDlg::OnButtonConnect() {
 			SYSTEMTIME tm;
 			GetSystemTime(&tm);
 			CString str;
-			str.Format("%02d%02d%02d_%02d%02d%02d.csv", tm.wYear % 100, tm.wMonth, tm.wDay, tm.wHour, tm.wMinute, tm.wSecond);
-			logger_ = new Logger(getPath() + str.GetString());
+			str.Format("%02d%02d%02d_%02d%02d%02d", tm.wYear % 100, tm.wMonth, tm.wDay, tm.wHour, tm.wMinute, tm.wSecond);
+			logger_ = new Logger(getPath() + str.GetString() + ".csv");
+
+			const uint8_t filterIds[] = {0x20, 0x21, 0x30, 0x31, 0x32, 0x33};
+			std::vector<uint8_t> filter = std::vector<uint8_t>(filterIds, filterIds + sizeof(filterIds));
+			dataXchg_->enableLog(getPath() + str.GetString() + ".log", &filter);
 		}
 
 		OnBnClickedCfgread();

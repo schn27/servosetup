@@ -49,7 +49,9 @@ DataXchg::DataXchg(SerialPort *rs, uint8_t addr, int transitAddr, bool broadcast
 		, cfgAddr_(0)
 		, cfgAddrAlias_(0)
 		, manualActive_(false)
-		, broadcast_(broadcast) {
+		, broadcast_(broadcast)
+		, logName_("")
+		, logFilter_(NULL) {
 	params_.reserve(256);
 
 	for (int i = 0; i < 256; ++i) {
@@ -310,7 +312,7 @@ bool DataXchg::request(uint8_t addr, uint8_t id, uint8_t *data, uint8_t datasize
 	rs_->clean();
 
 	ProtocolAdapter transit(rs_, transitAddr_, idTransit, buffer2_, buffer2Size_);
-	Protocol protocol((transitAddr_ < 0 || addr == transitAddr_) ? rs_ : &transit, buffer_, bufferSize_);
+	Protocol protocol((transitAddr_ < 0 || addr == transitAddr_) ? rs_ : &transit, buffer_, bufferSize_, logName_, &logFilter_);
 	
 	if (!protocol.send(addr, id, data, datasize)) {
 		return false;
@@ -345,7 +347,7 @@ bool DataXchg::requestNoAnswer(uint8_t addr, uint8_t id, uint8_t *data, uint8_t 
 	}
 
 	ProtocolAdapter transit(rs_, transitAddr_, idTransit, buffer2_, buffer2Size_);
-	Protocol protocol((transitAddr_ < 0 || addr == transitAddr_) ? rs_ : &transit, buffer_, bufferSize_);
+	Protocol protocol((transitAddr_ < 0 || addr == transitAddr_) ? rs_ : &transit, buffer_, bufferSize_, logName_, &logFilter_);
 
 	if (protocol.send(addr, id, data, datasize)) {
 		++cntGood_;
@@ -355,3 +357,7 @@ bool DataXchg::requestNoAnswer(uint8_t addr, uint8_t id, uint8_t *data, uint8_t 
 	return false;
 }
 
+void DataXchg::enableLog(const std::string &name, const std::vector<uint8_t> *filter) {
+	logName_ = name;
+	logFilter_ = filter != NULL ? *filter : std::vector<uint8_t>();
+}

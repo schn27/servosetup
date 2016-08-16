@@ -3,16 +3,18 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 #include <windows.h>
 #include "../SerialPort/serialport.h"
 #include "crc.h"
 #include "protocol.h"
 
-Protocol::Protocol(SerialPort *rs, uint8_t *buffer, int size, const std::string &logName)
+Protocol::Protocol(SerialPort *rs, uint8_t *buffer, int size, const std::string &logName, const std::vector<uint8_t> *filter)
 		: rs_(rs)
 		, buffer_(buffer)
 		, buffer_size_(size)
-		, log_(logName.empty() ? NULL : new std::fstream(logName, std::fstream::out | std::fstream::app)) {
+		, log_(logName.empty() ? NULL : new std::fstream(logName, std::fstream::out | std::fstream::app))
+		, filter_(filter != NULL ? *filter : std::vector<uint8_t>()){
 	assert(buffer_size_ >= 4);
 }
 
@@ -37,7 +39,7 @@ bool Protocol::send(uint8_t addr, uint8_t id, int size) {
 
 	rs_->write(buffer_, buffer_[2]);
 
-	if (log_ != NULL) {
+	if (log_ != NULL && isLogRequired(buffer_[1])) {
 		*log_ << std::endl << getTimeStr() << " " << "out " << bytesToStr(buffer_, buffer_[2]) << std::endl;
 	}
 
@@ -81,7 +83,7 @@ bool Protocol::receive(uint8_t &addr, uint8_t &id, int &size) {
 	id = buffer_[1];
 	size = buffer_[2] - 4;
 
-	if (log_ != NULL) {
+	if (log_ != NULL && isLogRequired(buffer_[1])) {
 		*log_ << getTimeStr() << " " << "in  " << bytesToStr(buffer_, buffer_[2]) << std::endl;
 	}
 
@@ -116,4 +118,8 @@ std::string Protocol::bytesToStr(const uint8_t *data, int size) const {
 	}
 
 	return s.str();
+}
+
+bool Protocol::isLogRequired(uint8_t id) const {
+	return filter_.empty() || std::find(filter_.begin(), filter_.end(), id) != filter_.end();
 }

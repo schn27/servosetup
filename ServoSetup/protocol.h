@@ -4,12 +4,13 @@
 #include <stdint.h>
 #include <ostream>
 #include <string>
+#include <vector>
 
 class SerialPort;
 
 class Protocol {
 public:
-	Protocol(SerialPort *rs, uint8_t *buffer, int size, const std::string &logName = "");
+	Protocol(SerialPort *rs, uint8_t *buffer, int size, const std::string &logName = "", const std::vector<uint8_t> *filter = NULL);
 	~Protocol();
 	
 	uint8_t *getDataPointer();
@@ -23,12 +24,14 @@ public:
 private:
 	std::string getTimeStr() const;
 	std::string bytesToStr(const uint8_t *data, int size) const;
+	bool isLogRequired(uint8_t id) const;
 
 	SerialPort *rs_;
 	uint8_t *buffer_;
 	const int buffer_size_;
 
 	std::ostream *log_;
+	std::vector<uint8_t> filter_;
 };
 
 

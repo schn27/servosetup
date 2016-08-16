@@ -39,6 +39,8 @@ public:
 		return cntBad_;
 	}
 
+	void enableLog(const std::string &name, const std::vector<uint8_t> *filter = NULL);
+
 private:
 	virtual int threadProc(void *p);
 
@@ -104,6 +106,9 @@ private:
 
 	bool manualActive_;
 	bool broadcast_;
+
+	std::string logName_;
+	std::vector<uint8_t> logFilter_;
 };
 
 #endif

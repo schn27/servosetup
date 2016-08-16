@@ -7,5 +7,7 @@ ipch/
 Debug/
 Release/*.exe
 Release/*.pdb
+Release/*.csv
+Release/*.log
 ServoSetup/Release/
 ServoSetup/Debug/

@@ -14,7 +14,7 @@ Protocol::Protocol(SerialPort *rs, uint8_t *buffer, int size, const std::string 
 		, buffer_(buffer)
 		, buffer_size_(size)
 		, log_(logName.empty() ? NULL : new std::fstream(logName, std::fstream::out | std::fstream::app))
-		, filter_(filter != NULL ? *filter : std::vector<uint8_t>()){
+		, filter_(filter != NULL ? *filter : std::vector<uint8_t>()) {
 	assert(buffer_size_ >= 4);
 }
 

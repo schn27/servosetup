@@ -159,8 +159,9 @@ void DataXchg::updateInfo() {
 		return;
 	}
 
-	uint8_t buf[16] = {0};
-	uint8_t bufsize = sizeof(buf);
+	uint8_t buf[256];
+	uint8_t bufsize = (uint8_t)sizeof(buf);
+	memset(buf, 0, bufsize);
 	
 	if (!request(addr_, idGetVer, buf, 0, buf, bufsize)) {
 		return;
@@ -180,27 +181,22 @@ void DataXchg::update() {
 		buf[2] = 3;
 	}
 
-	uint8_t bufsize = 0;
-	
 	if (broadcast_) {
 		requestNoAnswer(addr_, idSetPosNoAnswer, buf, 2);
 		return;
 	}
 
 	if (!manualActive_) {
-		request(addr_, idSetPos, buf, 2, buf, bufsize);
+		uint8_t n = 0;
+		request(addr_, idSetPos, buf, 2, NULL, n);
 
 		if (transitAddr_ >= 0) {
-			request(transitAddr_, idSetPos, buf, 3, buf, bufsize);
+			request(transitAddr_, idSetPos, buf, 3, NULL, n);
 		}
 	}
 
-	bufsize = 8;
-	if (!request(addr_, idGetState, buf, 0, buf, bufsize)) {
-		return;
-	}
-	
-	if (bufsize == 8) {
+	uint8_t bufsize = 8;
+	if (request(addr_, idGetState, buf, 0, buf, bufsize)) {
 		ScopedLock<CCriticalSection> _(criticalSection_);
 		position_ = static_cast<int16_t>(buf[0] + buf[1] * 256) * servoconsts::PositionScale;
 		speed_ = static_cast<int16_t>(buf[2] + buf[3] * 256) * servoconsts::SpeedScale;
@@ -244,8 +240,8 @@ void DataXchg::updateParams(bool all) {
 bool DataXchg::writeParam(uint8_t id, int16_t value) {
 	for (int i = 0; i < 3; ++i) {
 		uint8_t buf[3] = {id, value & 0xFF, value >> 8};
-		uint8_t bufsize = 0;
-		if (request(addr_, idSetPar, buf, 3, buf, bufsize)) {
+		uint8_t n = 0;
+		if (request(addr_, idSetPar, buf, 3, NULL, n)) {
 			return true;
 		}
 	}
@@ -276,9 +272,8 @@ void DataXchg::doWriteAddr() {
 	for (int i = 0; i < 3; ++i) {
 		uint32_t rate = 115200;
 		uint8_t buf[6] = {rate, rate >> 8, rate >> 16, rate >> 24, cfgAddr_, cfgAddrAlias_};
-		uint8_t bufsize = 0;
-
-		if (request(addr_, idSetRS485, buf, 6, buf, bufsize)) {
+		uint8_t n = 0;
+		if (request(addr_, idSetRS485, buf, 6, NULL, n)) {
 			return;
 		}
 	}
@@ -322,7 +317,7 @@ bool DataXchg::request(uint8_t addr, uint8_t id, uint8_t *data, uint8_t datasize
 	uint8_t id_recv;
 	int size;
 
-	if (!protocol.receive(addr_recv, id_recv, size)) {
+	if (!protocol.receive(addr_recv, id_recv, size) || (size != responsesize && responsesize < 252)) {
 		++cntBad_;
 		return false;
 	}

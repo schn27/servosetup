@@ -1,4 +1,7 @@
 #pragma once
+#include "afxcmn.h"
+#include "afxwin.h"
+
 #define UM_HIDEEDITOR	(WM_USER+10)
 class CMsgHook
 {

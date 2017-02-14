@@ -4,15 +4,16 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <thread>
+#include <mutex>
 #include "afxwin.h"
 #include "afxcmn.h"
 #include "afxmt.h"
-#include "Thread.h"
 #include "../SerialPort/serialport.h"
 
 class SerialPort;
 
-class DataXchg : public Thread {
+class DataXchg {
 public:
 	DataXchg(SerialPort *rs, uint8_t addr, int transitAddr, bool broadcast = false);
 	virtual ~DataXchg();
@@ -39,33 +40,32 @@ public:
 		return cntBad_;
 	}
 
-	void enableLog(const std::string &name, const std::vector<uint8_t> *filter = NULL);
+	void enableLog(const std::string &name, const std::vector<uint8_t> *filter = nullptr);
 
 private:
-	virtual int threadProc(void *p);
+	virtual void run();
 
 	void updateInfo();
 	void update();
 	void updateParams(bool all);
-	void doPortOpen();
-	void doPortClose();
 	void doWriteAddr();
-	void doManual(uint8_t cmd);
+	void doManual();
 
 	bool writeParam(uint8_t id, int16_t value);
 	bool readParam(uint8_t id, int16_t &value);
 
-	void processData();
 	bool request(uint8_t addr, uint8_t id, uint8_t *data, uint8_t dataSize, uint8_t *response, uint8_t &responseSize);
 	bool requestNoAnswer(uint8_t addr, uint8_t id, uint8_t *data, uint8_t dataSize);
 
 	enum {
-		msgWriteAddr = msgBase,
+		msgWriteAddr,
 		msgSetAddr,
 		msgManual
 	};
 
-	CCriticalSection criticalSection_;
+	std::thread *thread_;
+	volatile bool stop_;
+	std::mutex lock_;
 
 	SerialPort *rs_;
 	
@@ -103,6 +103,10 @@ private:
 
 	uint8_t cfgAddr_;
 	uint8_t cfgAddrAlias_;
+	volatile bool writeAddrReq_;
+
+	uint8_t manualCmd_;
+	volatile bool manualCmdReq_;
 
 	bool manualActive_;
 	bool broadcast_;

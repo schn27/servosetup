@@ -47,9 +47,6 @@
     <ClCompile Include="ServoSetupDlg.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="Thread.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\pugixml\pugixml.cpp">
       <Filter>pugixml</Filter>
     </ClCompile>
@@ -88,9 +85,6 @@
     <ClInclude Include="..\SerialPort\UdpTunnel.h">
       <Filter>SerialPort</Filter>
     </ClInclude>
-    <ClInclude Include="Thread.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="connection.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -124,23 +118,11 @@
     <ClInclude Include="ServoSetupDlg.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="stdint.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\CustomCtrl\ListCtrlEx.h">
       <Filter>CustomCtrl</Filter>
     </ClInclude>
     <ClInclude Include="..\CustomCtrl\MsgHook.h">
       <Filter>CustomCtrl</Filter>
-    </ClInclude>
-    <ClInclude Include="ScopedLock.h">
-      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,6 @@
 #pragma once
+#include "afxcmn.h"
+#include "afxwin.h"
 #include "MsgHook.h"
 #include<Afxmt.h>
 // CListCtrlEx

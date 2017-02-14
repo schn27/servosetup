@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "MsgHook.h"
 
 HHOOK CMsgHook::m_hHook = NULL;

@@ -13,7 +13,7 @@ UdpTunnel::UdpTunnel(const char *selfIp, uint16_t selfPort, const char *remoteIp
 		, remoteIp_(remoteIp)
 		, remotePort_(remotePort)
 		, update_remote_addr_(false)
-		, sck_(NULL)
+		, sck_(0)
 		, bufferSize_(1024)
 		, buffer_(new uint8_t[bufferSize_])
 		, bufferPos_(0)
@@ -68,9 +68,9 @@ uint16_t UdpTunnel::read(void *data, uint16_t size) {
 
 			fd_set set = {0};
 			FD_SET(sck_, &set);
-			TIMEVAL tv = {0, timeout_ * 1000}; // seconds, microseconds
+			TIMEVAL tv = {0, long(timeout_ * 1000)}; // seconds, microseconds
 			
-			if (select(0, &set, NULL, NULL, &tv) > 0) {
+			if (select(0, &set, nullptr, nullptr, &tv) > 0) {
 				sockaddr_in sa = {0};
 				int sa_size = sizeof(sa);
 				int n = recvfrom(sck_, (char *)buffer_, bufferSize_, 0, (sockaddr *)&sa, &sa_size);
@@ -114,7 +114,7 @@ void UdpTunnel::clean() {
 	FD_SET(sck_, &set);
 	TIMEVAL tv = {0, 0}; // seconds, microseconds
 
-	while (select(0, &set, NULL, NULL, &tv) > 0) {
+	while (select(0, &set, nullptr, nullptr, &tv) > 0) {
 		sockaddr_in sa = {0};
 		int sa_size = sizeof(sa);
 		int n = recvfrom(sck_, (char *)buffer_, bufferSize_, 0, (sockaddr *)&sa, &sa_size);

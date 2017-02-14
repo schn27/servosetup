@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Logger.h"
 
 Logger::Logger(const std::string &filename) {

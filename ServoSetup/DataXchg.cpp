@@ -326,7 +326,7 @@ bool DataXchg::request(uint8_t addr, uint8_t id, uint8_t *data, uint8_t datasize
 	uint8_t id_recv;
 	int size;
 
-	if (!protocol.receive(addr_recv, id_recv, size) || (size != responsesize && responsesize < 252)) {
+	if (!protocol.receive(addr_recv, id_recv, size) || (size != responsesize && responsesize > 0 && responsesize < 252)) {
 		++cntBad_;
 		return false;
 	}

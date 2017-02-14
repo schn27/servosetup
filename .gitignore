@@ -3,9 +3,13 @@
 *.opensdf
 *.vcxproj.user
 *.aps
+*.VC.db
+*.VC.opendb
 ipch/
 Debug/
 Release/*.exe
+Release/*.iobj
+Release/*.ipdb
 Release/*.pdb
 Release/*.csv
 Release/*.log

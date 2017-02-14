@@ -13,8 +13,8 @@ Protocol::Protocol(SerialPort *rs, uint8_t *buffer, int size, const std::string 
 		: rs_(rs)
 		, buffer_(buffer)
 		, buffer_size_(size)
-		, log_(logName.empty() ? NULL : new std::fstream(logName, std::fstream::out | std::fstream::app))
-		, filter_(filter != NULL ? *filter : std::vector<uint8_t>()) {
+		, log_(logName.empty() ? nullptr : new std::ofstream(logName, std::fstream::out | std::fstream::app))
+		, filter_(filter != nullptr ? *filter : std::vector<uint8_t>()) {
 	assert(buffer_size_ >= 4);
 }
 
@@ -39,7 +39,7 @@ bool Protocol::send(uint8_t addr, uint8_t id, int size) {
 
 	rs_->write(buffer_, buffer_[2]);
 
-	if (log_ != NULL && isLogRequired(buffer_[1])) {
+	if (log_ != nullptr && isLogRequired(buffer_[1])) {
 		*log_ << std::endl << getTimeStr() << " " << "out " << bytesToStr(buffer_, buffer_[2]) << std::endl;
 	}
 
@@ -62,7 +62,7 @@ bool Protocol::receive(uint8_t &addr, uint8_t &id, int &size) {
 	int n = rs_->read(buffer_, 4);
 
 	if (n < 4 || buffer_[2] > buffer_size_ || buffer_[2] < 4) {
-		if (log_ != NULL) {
+		if (log_ != nullptr) {
 			*log_ << getTimeStr() << " " << "in TIMEOUT " << bytesToStr(buffer_, n) << std::endl;
 		}
 		return false;
@@ -72,7 +72,7 @@ bool Protocol::receive(uint8_t &addr, uint8_t &id, int &size) {
 		int n = rs_->read(buffer_ + 4, buffer_[2] - 4);
 
 		if ((n < buffer_[2] - 4) || (Crc8(buffer_, buffer_[2] - 1) != buffer_[buffer_[2] - 1])) {
-			if (log_ != NULL) {
+			if (log_ != nullptr) {
 				*log_ << getTimeStr() << " " << "in BAD " << bytesToStr(buffer_, n) << std::endl;
 			}
 			return false;
@@ -83,7 +83,7 @@ bool Protocol::receive(uint8_t &addr, uint8_t &id, int &size) {
 	id = buffer_[1];
 	size = buffer_[2] - 4;
 
-	if (log_ != NULL && isLogRequired(buffer_[1])) {
+	if (log_ != nullptr && isLogRequired(buffer_[1])) {
 		*log_ << getTimeStr() << " " << "in  " << bytesToStr(buffer_, buffer_[2]) << std::endl;
 	}
 

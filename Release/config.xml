@@ -11,6 +11,14 @@
   <servo group="255" addr="255" name="New" />
 </preset>
 
+<preset name="lsok">
+  <servo group="0" addr="0" name="All" />
+  <servo group="10" addr="11" name="Azimuth" />
+  <servo group="20" addr="22" name="Elevation" />
+  <servo group="255" addr="255" name="New" />
+</preset>
+
+
 <params>
   <param id="0" name="Calibrated" />
   <param id="1" name="Reversed" />

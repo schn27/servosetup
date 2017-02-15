@@ -23,9 +23,6 @@
     <ClCompile Include="crc.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="DataXchg.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -65,6 +62,9 @@
     <ClCompile Include="..\CustomCtrl\MsgHook.cpp">
       <Filter>CustomCtrl</Filter>
     </ClCompile>
+    <ClCompile Include="Comm.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pugixml\pugiconfig.hpp">
@@ -89,9 +89,6 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="crc.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="DataXchg.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h">
@@ -123,6 +120,9 @@
     </ClInclude>
     <ClInclude Include="..\CustomCtrl\MsgHook.h">
       <Filter>CustomCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Comm.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

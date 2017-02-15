@@ -18,11 +18,11 @@ public:
 	virtual void unlock() {
 	}
 	
-	virtual uint16_t read(void *buf, uint16_t size) {
+	virtual size_t read(void *buf, size_t size) {
 		return 0;
 	}
 	
-	virtual void write(const void *buf, uint16_t size) {
+	virtual void write(const void *buf, size_t size) {
 	}
 	
 	virtual void clean() {

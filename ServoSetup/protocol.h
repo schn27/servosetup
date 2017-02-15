@@ -10,25 +10,25 @@ class SerialPort;
 
 class Protocol {
 public:
-	Protocol(SerialPort *rs, uint8_t *buffer, int size, const std::string &logName = "", const std::vector<uint8_t> *filter = NULL);
+	Protocol(SerialPort *rs, uint8_t *buffer, size_t size, const std::string &logName = "", const std::vector<uint8_t> *filter = NULL);
 	~Protocol();
 	
 	uint8_t *getDataPointer();
-	int getMaxDataSize() const;
+	size_t getMaxDataSize() const;
 	
-	bool send(uint8_t addr, uint8_t id, int size);
-	bool send(uint8_t addr, uint8_t id, const uint8_t *data, int size);	
-	bool receive(uint8_t &addr, uint8_t &id, int &size);
-	bool receiveResponse(uint8_t addr, uint8_t id, int &size);
+	bool send(uint8_t addr, uint8_t id, size_t size);
+	bool send(uint8_t addr, uint8_t id, const uint8_t *data, size_t size);	
+	bool receive(uint8_t &addr, uint8_t &id, size_t &size);
+	bool receiveResponse(uint8_t addr, uint8_t id, size_t &size);
 	
 private:
 	std::string getTimeStr() const;
-	std::string bytesToStr(const uint8_t *data, int size) const;
+	std::string bytesToStr(const uint8_t *data, size_t size) const;
 	bool isLogRequired(uint8_t id) const;
 
 	SerialPort *rs_;
 	uint8_t *buffer_;
-	const int buffer_size_;
+	const size_t buffer_size_;
 
 	std::ostream *log_;
 	std::vector<uint8_t> filter_;

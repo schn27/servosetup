@@ -35,7 +35,7 @@ bool UdpTunnel::lock() {
 void UdpTunnel::unlock() {
 }
 
-uint16_t UdpTunnel::read(void *data, uint16_t size) {
+size_t UdpTunnel::read(void *data, size_t size) {
 	init();
 
 	uint32_t result = 0;
@@ -49,7 +49,7 @@ uint16_t UdpTunnel::read(void *data, uint16_t size) {
 	} else {
 		// если данных в буфере меньше чем надо
 		
-		uint8_t *dataPtr = (uint8_t *)data;
+		uint8_t *dataPtr = static_cast<uint8_t *>(data);
 
 		if (dataInBuffer_) {
 			// прочитать остатки
@@ -72,7 +72,7 @@ uint16_t UdpTunnel::read(void *data, uint16_t size) {
 			
 			if (select(0, &set, nullptr, nullptr, &tv) > 0) {
 				sockaddr_in sa = {0};
-				int sa_size = sizeof(sa);
+				int sa_size = sizeof sa;
 				int n = recvfrom(sck_, (char *)buffer_, bufferSize_, 0, (sockaddr *)&sa, &sa_size);
 			
 				if (update_remote_addr_) {
@@ -97,14 +97,14 @@ uint16_t UdpTunnel::read(void *data, uint16_t size) {
 	return result;
 }
 
-void UdpTunnel::write(const void *data, uint16_t size) {
+void UdpTunnel::write(const void *data, size_t size) {
 	init();
 
 	sockaddr_in sa = {0};
 	sa.sin_family = AF_INET;
 	sa.sin_port = htons(remotePort_);
 	sa.sin_addr = remote_addr_;
-	sendto(sck_, (const char *)data, size, 0, (sockaddr *)&sa, sizeof(sa));
+	sendto(sck_, (const char *)data, size, 0, (sockaddr *)&sa, sizeof sa);
 }
 
 void UdpTunnel::clean() {
@@ -116,7 +116,7 @@ void UdpTunnel::clean() {
 
 	while (select(0, &set, nullptr, nullptr, &tv) > 0) {
 		sockaddr_in sa = {0};
-		int sa_size = sizeof(sa);
+		int sa_size = sizeof sa;
 		int n = recvfrom(sck_, (char *)buffer_, bufferSize_, 0, (sockaddr *)&sa, &sa_size);
 	}
 
@@ -152,9 +152,9 @@ void UdpTunnel::init() {
 	}
 
 	const BOOL reuse_value = TRUE;
-	setsockopt(sck_, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse_value, sizeof(reuse_value));
+	setsockopt(sck_, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse_value, sizeof reuse_value);
 	
-	if (bind(sck_, (sockaddr *)&sa, sizeof(sa)) != 0) {
+	if (bind(sck_, (sockaddr *)&sa, sizeof sa) != 0) {
 		throw std::runtime_error("Socket binding failed");
 	}
 

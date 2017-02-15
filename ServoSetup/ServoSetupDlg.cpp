@@ -4,7 +4,7 @@
 #include "ServoSetupDlg.h"
 #include "../SerialPort/serialport.h"
 #include "connection.h"
-#include "DataXchg.h"
+#include "Comm.h"
 #include "Logger.h"
 
 #ifdef _DEBUG
@@ -13,15 +13,15 @@
 
 CServoSetupDlg::CServoSetupDlg(CWnd* pParent /*=NULL*/)
 		: CDialog(CServoSetupDlg::IDD, pParent)
-		, dataXchg_(NULL)
-		, logger_(NULL)
-		, rs_(NULL)
+		, comm_(nullptr)
+		, logger_(nullptr)
+		, rs_(nullptr)
 		, path_initialized_(false) {
 	hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
 CServoSetupDlg::~CServoSetupDlg() {
-	delete dataXchg_;
+	delete comm_;
 	delete logger_;
 	delete rs_;
 }
@@ -181,18 +181,18 @@ void CServoSetupDlg::OnClose() {
 void CServoSetupDlg::OnButtonConnect() {
 	std::string str("Disconnect");
 
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		UpdateData(TRUE);
 
 		delete rs_;
-		rs_ = NULL;
+		rs_ = nullptr;
 		
 		Connection connection = Connection(getPath() + "config.xml");
 		rs_ = connection.getIf();
 
 		const ServoList::Servo &servo = servolist_.getByName(preset.GetBuffer(), servoSelect.GetBuffer());
 		
-		dataXchg_ = new DataXchg(rs_, servo.addr, servo.transit);
+		comm_ = new Comm(rs_, servo.addr, servo.transit);
 		
 		if (enableLog.GetCheck()) {
 			SYSTEMTIME tm;
@@ -203,7 +203,7 @@ void CServoSetupDlg::OnButtonConnect() {
 
 			const uint8_t filterIds[] = {0x20, 0x21, 0x30, 0x31, 0x32, 0x33};
 			std::vector<uint8_t> filter = std::vector<uint8_t>(filterIds, filterIds + sizeof(filterIds));
-			dataXchg_->enableLog(getPath() + str.GetString() + ".log", &filter);
+			comm_->enableLog(getPath() + str.GetString() + ".log", &filter);
 		}
 
 		OnBnClickedCfgread();
@@ -212,18 +212,18 @@ void CServoSetupDlg::OnButtonConnect() {
 		servoSelectCtrl.EnableWindow(0);
 		enableLog.EnableWindow(0);
 
-		SetTimer(0, 20, NULL);
+		SetTimer(0, 20, nullptr);
 	} else {
 		str = "Connect";
 
-		delete dataXchg_;
-		dataXchg_ = NULL;
+		delete comm_;
+		comm_ = nullptr;
 
 		delete rs_;
-		rs_ = NULL;
+		rs_ = nullptr;
 		
 		delete logger_;
-		logger_ = NULL;
+		logger_ = nullptr;
 
 		presetCtrl.EnableWindow();
 		servoSelectCtrl.EnableWindow();
@@ -265,31 +265,31 @@ void CServoSetupDlg::OnTimer(UINT_PTR nIDEvent) {
 }
 
 void CServoSetupDlg::updateSetPoint() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
-	dataXchg_->setPosition(setPoint.GetPos());
+	comm_->setPosition(setPoint.GetPos());
 }
 
 void CServoSetupDlg::updatePacketCounter() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
-	int cntGood = dataXchg_->getCntGood();
-	int cntBad = dataXchg_->getCntBad();
+	int cntGood = comm_->getCntGood();
+	int cntBad = comm_->getCntBad();
 	CString str;
 	str.Format("%d/%d", cntGood, cntBad);
 	goodErr.SetWindowText(str);
 }
 
 void CServoSetupDlg::updateActualData() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
-	const std::string & info = dataXchg_->getInfo();
+	const std::string & info = comm_->getInfo();
 	curInfo.SetWindowText(info.c_str());
 
 	float position = 0;
@@ -297,7 +297,7 @@ void CServoSetupDlg::updateActualData() {
 	float uin = 0;
 	float iout = 0;
 
-	dataXchg_->getStatus(position, speed, uin, iout);
+	comm_->getStatus(position, speed, uin, iout);
 
 	CString str;
 	str.Format("%.1f", position);
@@ -309,14 +309,14 @@ void CServoSetupDlg::updateActualData() {
 	str.Format("%.1f", iout);
 	curIout.SetWindowText(str);
 
-	if (logger_ != NULL) {
+	if (logger_ != nullptr) {
 		logger_->write(position, speed, uin, iout);
 	}
 }
 
 // изменение параметров
 void CServoSetupDlg::OnBnClickedCfgwrite() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
@@ -333,29 +333,28 @@ void CServoSetupDlg::OnBnClickedCfgwrite() {
 		int16_t newval = static_cast<int16_t>(min(max(v * (1 << param.fixedPoint), -32767), 32767));
 
 		int16_t val;
-		dataXchg_->getParam(param.id, val);
+		comm_->getParam(param.id, val);
 
 		if (val != newval) {
-			dataXchg_->setParam(param.id, newval);
+			comm_->setParam(param.id, newval);
 		}
 	}
-
 }
 
 // чтение параметров
 void CServoSetupDlg::OnBnClickedCfgread() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
 	for (int i = 0, n = paramconfig_.getNumOfParams(); i < n; ++i) {
-		dataXchg_->reqParam(paramconfig_.getParam(i).id);
+		comm_->reqParam(paramconfig_.getParam(i).id);
 		paramList_.SetItemText(i, 2, "");
 	}
 }
 
 void CServoSetupDlg::updateParams() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
@@ -363,7 +362,7 @@ void CServoSetupDlg::updateParams() {
 		const ParamConfig::Param &param = paramconfig_.getParam(i);
 
 		int16_t val;
-		if (dataXchg_->getParam(param.id, val)) {
+		if (comm_->getParam(param.id, val)) {
 			std::stringstream ss;
 			ss << static_cast<double>(val) / (1 << param.fixedPoint);
 			paramList_.SetItemText(i, 2, ss.str().c_str());
@@ -372,53 +371,53 @@ void CServoSetupDlg::updateParams() {
 }
 
 void CServoSetupDlg::OnBnClickedAddrwr() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
 	UpdateData(TRUE);
 	const ServoList::Servo &servo = servolist_.getByName(preset.GetBuffer(), servoSet.GetBuffer());
-	dataXchg_->setAddrCfg(servo.addr, servo.group);
+	comm_->setAddrCfg(servo.addr, servo.group);
 }
 
 void CServoSetupDlg::OnBnClickedManbegin() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
-	dataXchg_->manualCfg(0);
+	comm_->manualCfg(0);
 }
 
 void CServoSetupDlg::OnBnClickedMansetend1() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
-	dataXchg_->manualCfg(1);
+	comm_->manualCfg(1);
 }
 
 void CServoSetupDlg::OnBnClickedMansetcenter() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
-	dataXchg_->manualCfg(2);
+	comm_->manualCfg(2);
 }
 
 void CServoSetupDlg::OnBnClickedMansetend2() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
-	dataXchg_->manualCfg(3);
+	comm_->manualCfg(3);
 }
 
 void CServoSetupDlg::OnBnClickedManend() {
-	if (dataXchg_ == NULL) {
+	if (comm_ == nullptr) {
 		return;
 	}
 
-	dataXchg_->manualCfg(4);
+	comm_->manualCfg(4);
 
 	OnBnClickedCfgread();
 }

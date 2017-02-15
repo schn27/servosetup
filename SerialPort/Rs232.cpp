@@ -1,7 +1,7 @@
 #include <string>
 #include "Rs232.h"
 
-Rs232::Rs232(const char *name, uint32_t baudRate, uint16_t timeOut)
+Rs232::Rs232(const char *name, size_t baudRate, size_t timeOut)
 		: name_(name)
 		, baudRate_(baudRate)
 		, timeOut_(timeOut)
@@ -20,7 +20,7 @@ bool Rs232::lock() {
 void Rs232::unlock() {
 }
 
-uint16_t Rs232::read(void *buf, uint16_t size) {
+size_t Rs232::read(void *buf, size_t size) {
 	if (init()) {
 		uint32_t result = 0;
 		return ReadFile(port_, buf, size, reinterpret_cast<LPDWORD>(&result), nullptr) ? result : 0;
@@ -30,7 +30,7 @@ uint16_t Rs232::read(void *buf, uint16_t size) {
 	}
 }
 
-void Rs232::write(const void *buf, uint16_t size) {
+void Rs232::write(const void *buf, size_t size) {
 	if (init()) {
 		uint32_t junk = 0;
 		WriteFile(port_, buf, size, reinterpret_cast<LPDWORD>(&junk), nullptr);
@@ -58,7 +58,7 @@ bool Rs232::init() {
 	}
 
 	DCB dcb = {0};
-	dcb.DCBlength = sizeof(dcb);
+	dcb.DCBlength = sizeof dcb;
 	
 	bool success = GetCommState(port_, &dcb) == TRUE;
 	

@@ -8,7 +8,7 @@
 
 class SerialPort;
 class Logger;
-class DataXchg;
+class Comm;
 
 class CServoSetupDlg : public CDialog {
 public:
@@ -41,6 +41,8 @@ protected:
 	afx_msg void OnBnClickedMansetend2();
 	afx_msg void OnBnClickedManend();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnCbnSelchangePreset();
+	afx_msg void OnCbnSelchangeServoselect();
 	DECLARE_MESSAGE_MAP()
 
 	CSliderCtrl setPoint;
@@ -64,7 +66,6 @@ protected:
 private:
 	void updateSetPoint();
 	void updatePacketCounter();
-	void updateConfig();
 	void updateActualData();
 	void updateParams();
 
@@ -80,15 +81,11 @@ private:
 
 	ParamConfig paramconfig_;
 	ServoList servolist_;
-	DataXchg *dataXchg_;
+	Comm *comm_;
 	Logger *logger_;
 	SerialPort *rs_;
 
 	bool path_initialized_;
 	std::string path_;
-
-public:
-	afx_msg void OnCbnSelchangePreset();
-	afx_msg void OnCbnSelchangeServoselect();
 };
 

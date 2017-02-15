@@ -12,8 +12,8 @@ public:
 
 	virtual bool lock();
 	virtual void unlock();
-	virtual uint16_t read(void *buf, uint16_t size);
-	virtual void write(const void *buf, uint16_t size);
+	virtual size_t read(void *buf, size_t size);
+	virtual void write(const void *buf, size_t size);
 	virtual void clean();
 
 private:
@@ -33,12 +33,12 @@ private:
 
 	SOCKET sck_;
 
-	const uint32_t bufferSize_;
+	const size_t bufferSize_;
 	uint8_t *buffer_;
-	uint32_t bufferPos_;
-	uint32_t dataInBuffer_;
+	size_t bufferPos_;
+	size_t dataInBuffer_;
 
-	const uint32_t timeout_;
+	const size_t timeout_;
 
 	static bool wsastartup_;
 };

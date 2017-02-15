@@ -1,6 +1,6 @@
 #include "protocol.h"
 #include "protocoladapter.h"
-#include "DataXchg.h"
+#include "Comm.h"
 
 namespace {
 
@@ -32,10 +32,10 @@ const float IoutScale = 0.001f;
 
 }
 
-const int DataXchg::bufferSize_ = 256;
-const int DataXchg::buffer2Size_ = 256 + 4;
+const size_t Comm::bufferSize_ = 256;
+const size_t Comm::buffer2Size_ = 256 + 4;
 
-DataXchg::DataXchg(SerialPort *rs, uint8_t addr, int transitAddr, bool broadcast)
+Comm::Comm(SerialPort *rs, uint8_t addr, int transitAddr, bool broadcast)
 		: thread_(nullptr)
 		, stop_(false)
 		, rs_(rs)
@@ -68,10 +68,10 @@ DataXchg::DataXchg(SerialPort *rs, uint8_t addr, int transitAddr, bool broadcast
 		params_.push_back(param_t());
 	}
 
-	thread_ = new std::thread(&DataXchg::run, this);
+	thread_ = new std::thread(&Comm::run, this);
 }
 
-DataXchg::~DataXchg() {
+Comm::~Comm() {
 	stop_ = true;
 	thread_->join();
 	delete thread_;
@@ -80,7 +80,7 @@ DataXchg::~DataXchg() {
 	delete [] buffer2_;
 }
 
-void DataXchg::getStatus(float &position, float &speed, float &uin, float &iout) {
+void Comm::getStatus(float &position, float &speed, float &uin, float &iout) {
 	std::lock_guard<std::mutex> _(lock_);
 	position = position_;
 	speed = speed_;
@@ -88,12 +88,12 @@ void DataXchg::getStatus(float &position, float &speed, float &uin, float &iout)
 	iout = iout_;
 }
 
-void DataXchg::setPosition(int value) {
+void Comm::setPosition(int value) {
 	std::lock_guard<std::mutex> _(lock_);
 	cmdPosition_ = value;
 }
 
-void DataXchg::reqParam(size_t index) {
+void Comm::reqParam(size_t index) {
 	if (index >= params_.size()) {
 		return;
 	}
@@ -102,7 +102,7 @@ void DataXchg::reqParam(size_t index) {
 	params_[index].state = eParReadReq;
 }
 
-bool DataXchg::getParam(size_t index, int16_t &value) {
+bool Comm::getParam(size_t index, int16_t &value) {
 	if (index >= params_.size()) {
 		return false;
 	}
@@ -122,7 +122,7 @@ bool DataXchg::getParam(size_t index, int16_t &value) {
 	return res;
 }
 
-void DataXchg::setParam(size_t index, int16_t value) {
+void Comm::setParam(size_t index, int16_t value) {
 	if (index >= params_.size()) {
 		return;
 	}
@@ -133,23 +133,23 @@ void DataXchg::setParam(size_t index, int16_t value) {
 	param.state = eParWriteReq;
 }
 
-void DataXchg::setAddrCfg(uint8_t addr, uint8_t addrAlias) {
+void Comm::setAddrCfg(uint8_t addr, uint8_t addrAlias) {
 	cfgAddr_ = addr;
 	cfgAddrAlias_ = addrAlias;
 	writeAddrReq_ = true;
 }
 
-void DataXchg::setAddr(uint8_t addr) {
+void Comm::setAddr(uint8_t addr) {
 	addr_ = addr;
 	noInfo_ = true;
 }
 
-void DataXchg::manualCfg(uint8_t cmd) {
+void Comm::manualCfg(uint8_t cmd) {
 	manualCmd_ = cmd;
 	manualCmdReq_ = true;
 }
 
-void DataXchg::run() {
+void Comm::run() {
 	while (!stop_) {
 		if (writeAddrReq_) {
 			doWriteAddr();
@@ -167,13 +167,13 @@ void DataXchg::run() {
 	}
 }
 
-void DataXchg::updateInfo() {
+void Comm::updateInfo() {
 	if (!noInfo_ || broadcast_) {
 		return;
 	}
 
 	uint8_t buf[256];
-	uint8_t bufsize = (uint8_t)sizeof(buf);
+	size_t bufsize = sizeof buf;
 	memset(buf, 0, bufsize);
 	
 	if (!request(addr_, idGetVer, buf, 0, buf, bufsize)) {
@@ -184,7 +184,7 @@ void DataXchg::updateInfo() {
 	noInfo_ = false;
 }
 
-void DataXchg::update() {
+void Comm::update() {
 	uint8_t buf[8];
 	
 	{
@@ -200,7 +200,7 @@ void DataXchg::update() {
 	}
 
 	if (!manualActive_) {
-		uint8_t n = 0;
+		size_t n = 0;
 		request(addr_, idSetPos, buf, 2, nullptr, n);
 
 		if (transitAddr_ >= 0) {
@@ -208,7 +208,7 @@ void DataXchg::update() {
 		}
 	}
 
-	uint8_t bufsize = 8;
+	size_t bufsize = 8;
 	if (request(addr_, idGetState, buf, 0, buf, bufsize)) {
 		std::lock_guard<std::mutex> _(lock_);
 		position_ = static_cast<int16_t>(buf[0] + buf[1] * 256) * servoconsts::PositionScale;
@@ -218,10 +218,10 @@ void DataXchg::update() {
 	}
 }
 
-void DataXchg::updateParams(bool all) {
+void Comm::updateParams(bool all) {
 	bool updated = false;
 	
-	for (int i = 0, n = params_.size(); (i < n) && (!updated || all); ++i) {
+	for (size_t i = 0, n = params_.size(); (i < n) && (!updated || all); ++i) {
 		param_t param;
 		{
 			std::lock_guard<std::mutex> _(lock_);
@@ -250,10 +250,10 @@ void DataXchg::updateParams(bool all) {
 	}
 }
 
-bool DataXchg::writeParam(uint8_t id, int16_t value) {
-	for (int i = 0; i < 3; ++i) {
-		uint8_t buf[3] = {id, uint8_t(value & 0xFF), uint8_t(value >> 8)};
-		uint8_t n = 0;
+bool Comm::writeParam(size_t id, int16_t value) {
+	for (size_t i = 0; i < 3; ++i) {
+		uint8_t buf[3] = {uint8_t(id), uint8_t(value & 0xFF), uint8_t(value >> 8)};
+		size_t n = 0;
 		if (request(addr_, idSetPar, buf, 3, nullptr, n)) {
 			return true;
 		}
@@ -262,12 +262,12 @@ bool DataXchg::writeParam(uint8_t id, int16_t value) {
 	return false;
 }
 
-bool DataXchg::readParam(uint8_t id, int16_t &value) {
+bool Comm::readParam(size_t id, int16_t &value) {
 	value = 0;
 
-	for (int i = 0; i < 3; ++i) {
-		uint8_t buf[2] = {id, 0};
-		uint8_t bufsize = 2;
+	for (size_t i = 0; i < 3; ++i) {
+		uint8_t buf[2] = {uint8_t(id), 0};
+		size_t bufsize = 2;
 		if (request(addr_, idGetPar, buf, 1, buf, bufsize)) {
 			value = static_cast<int16_t>(buf[0] + buf[1] * 256);
 			return true;
@@ -277,22 +277,22 @@ bool DataXchg::readParam(uint8_t id, int16_t &value) {
 	return false;
 }
 
-void DataXchg::doWriteAddr() {
+void Comm::doWriteAddr() {
 	if (broadcast_) {
 		return;
 	}
 
-	for (int i = 0; i < 3; ++i) {
-		uint32_t rate = 115200;
+	for (size_t i = 0; i < 3; ++i) {
+		size_t rate = 115200;
 		uint8_t buf[6] = {uint8_t(rate), uint8_t(rate >> 8), uint8_t(rate >> 16), uint8_t(rate >> 24), cfgAddr_, cfgAddrAlias_};
-		uint8_t n = 0;
+		size_t n = 0;
 		if (request(addr_, idSetRS485, buf, 6, nullptr, n)) {
 			return;
 		}
 	}
 }
 
-void DataXchg::doManual() {
+void Comm::doManual() {
 	if (broadcast_) {
 		return;
 	}
@@ -303,8 +303,8 @@ void DataXchg::doManual() {
 		manualActive_ = false;
 	}
 
-	for (int i = 0; i < 3; ++i) {
-		uint8_t n = 0;
+	for (size_t i = 0; i < 3; ++i) {
+		size_t n = 0;
 		if (request(addr_, idManualSetup, &manualCmd_, 1, nullptr, n)) {
 			return;
 		}
@@ -312,7 +312,7 @@ void DataXchg::doManual() {
 }
 
 // отправка запроса и приём ответа
-bool DataXchg::request(uint8_t addr, uint8_t id, uint8_t *data, uint8_t datasize, uint8_t *response, uint8_t &responsesize) {
+bool Comm::request(uint8_t addr, uint8_t id, uint8_t *data, size_t datasize, uint8_t *response, size_t &responsesize) {
 	rs_->clean();
 
 	ProtocolAdapter transit(rs_, transitAddr_, idTransit, buffer2_, buffer2Size_);
@@ -324,7 +324,7 @@ bool DataXchg::request(uint8_t addr, uint8_t id, uint8_t *data, uint8_t datasize
 	
 	uint8_t addr_recv;
 	uint8_t id_recv;
-	int size;
+	size_t size;
 
 	if (!protocol.receive(addr_recv, id_recv, size) || (size != responsesize && responsesize > 0 && responsesize < 252)) {
 		++cntBad_;
@@ -345,7 +345,7 @@ bool DataXchg::request(uint8_t addr, uint8_t id, uint8_t *data, uint8_t datasize
 }
 
 // отправка запроса без ожидания ответа
-bool DataXchg::requestNoAnswer(uint8_t addr, uint8_t id, uint8_t *data, uint8_t datasize) {
+bool Comm::requestNoAnswer(uint8_t addr, uint8_t id, uint8_t *data, size_t datasize) {
 	ProtocolAdapter transit(rs_, transitAddr_, idTransit, buffer2_, buffer2Size_);
 	Protocol protocol((transitAddr_ < 0 || addr == transitAddr_) ? rs_ : &transit, buffer_, bufferSize_, logName_, &logFilter_);
 
@@ -357,7 +357,7 @@ bool DataXchg::requestNoAnswer(uint8_t addr, uint8_t id, uint8_t *data, uint8_t 
 	return false;
 }
 
-void DataXchg::enableLog(const std::string &name, const std::vector<uint8_t> *filter) {
+void Comm::enableLog(const std::string &name, const std::vector<uint8_t> *filter) {
 	logName_ = name;
 	logFilter_ = filter != nullptr ? *filter : std::vector<uint8_t>();
 }

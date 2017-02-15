@@ -46,5 +46,5 @@ SerialPort *Connection::CreateInterface(xml_node &node) {
 			iface.attribute("addr").value(), iface.attribute("port-out").as_int());
 	}
 
-	return NULL;
+	return nullptr;
 }

@@ -9,7 +9,7 @@
 #include "crc.h"
 #include "protocol.h"
 
-Protocol::Protocol(SerialPort *rs, uint8_t *buffer, int size, const std::string &logName, const std::vector<uint8_t> *filter)
+Protocol::Protocol(SerialPort *rs, uint8_t *buffer, size_t size, const std::string &logName, const std::vector<uint8_t> *filter)
 		: rs_(rs)
 		, buffer_(buffer)
 		, buffer_size_(size)
@@ -26,16 +26,16 @@ uint8_t *Protocol::getDataPointer() {
 	return buffer_ + 3;
 }
 
-int Protocol::getMaxDataSize() const {
+size_t Protocol::getMaxDataSize() const {
 	return buffer_size_ - 4;
 }
 
 // формирование и отправка пакета
-bool Protocol::send(uint8_t addr, uint8_t id, int size) {
+bool Protocol::send(uint8_t addr, uint8_t id, size_t size) {
 	buffer_[0] = addr;
 	buffer_[1] = id;
-	buffer_[2] = size + 4;
-	buffer_[buffer_[2] - 1] = Crc8(buffer_, buffer_[2] - 1);
+	buffer_[2] = uint8_t(size + 4);
+	buffer_[buffer_[2] - 1] = crc::crc8(buffer_, buffer_[2] - 1);
 
 	rs_->write(buffer_, buffer_[2]);
 
@@ -47,7 +47,7 @@ bool Protocol::send(uint8_t addr, uint8_t id, int size) {
 }
 
 // формирование и отправка пакета (с копированием поля данных)
-bool Protocol::send(uint8_t addr, uint8_t id, const uint8_t *data, int size) {
+bool Protocol::send(uint8_t addr, uint8_t id, const uint8_t *data, size_t size) {
 	if (size > buffer_size_ - 4) {
 		return false;
 	}
@@ -58,7 +58,7 @@ bool Protocol::send(uint8_t addr, uint8_t id, const uint8_t *data, int size) {
 }
 
 // приём пакета
-bool Protocol::receive(uint8_t &addr, uint8_t &id, int &size) {
+bool Protocol::receive(uint8_t &addr, uint8_t &id, size_t &size) {
 	int n = rs_->read(buffer_, 4);
 
 	if (n < 4 || buffer_[2] > buffer_size_ || buffer_[2] < 4) {
@@ -71,7 +71,7 @@ bool Protocol::receive(uint8_t &addr, uint8_t &id, int &size) {
 	if (buffer_[2] > 4) {
 		int n = rs_->read(buffer_ + 4, buffer_[2] - 4);
 
-		if ((n < buffer_[2] - 4) || (Crc8(buffer_, buffer_[2] - 1) != buffer_[buffer_[2] - 1])) {
+		if ((n < buffer_[2] - 4) || (crc::crc8(buffer_, buffer_[2] - 1) != buffer_[buffer_[2] - 1])) {
 			if (log_ != nullptr) {
 				*log_ << getTimeStr() << " " << "in BAD " << bytesToStr(buffer_, n) << std::endl;
 			}
@@ -91,7 +91,7 @@ bool Protocol::receive(uint8_t &addr, uint8_t &id, int &size) {
 }
 
 // приём пакета с проверкой addr и id
-bool Protocol::receiveResponse(uint8_t addr, uint8_t id, int &size) {
+bool Protocol::receiveResponse(uint8_t addr, uint8_t id, size_t &size) {
 	uint8_t addr_recv = 0;
 	uint8_t id_recv = 0;
 	
@@ -110,10 +110,10 @@ std::string Protocol::getTimeStr() const {
 	return s.str();
 }
 
-std::string Protocol::bytesToStr(const uint8_t *data, int size) const {
+std::string Protocol::bytesToStr(const uint8_t *data, size_t size) const {
 	std::stringstream s;
 	
-	for (int i = 0; i < size; ++i) {
+	for (size_t i = 0; i < size; ++i) {
 		s << std::hex << std::setw(2) << std::setfill('0') << (int)data[i] << " ";
 	}
 

@@ -134,7 +134,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="DataXchg.cpp" />
+    <ClCompile Include="Comm.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="paramconfig.cpp" />
     <ClCompile Include="protocol.cpp" />
@@ -154,7 +154,7 @@
     <ClInclude Include="..\SerialPort\UdpTunnel.h" />
     <ClInclude Include="connection.h" />
     <ClInclude Include="crc.h" />
-    <ClInclude Include="DataXchg.h" />
+    <ClInclude Include="Comm.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="paramconfig.h" />
     <ClInclude Include="protocol.h" />

@@ -1,22 +1,19 @@
-#ifndef DATAXCHG_H
-#define DATAXCHG_H
+#ifndef COMM_H
+#define COMM_H
 
 #include <stdint.h>
 #include <string>
 #include <vector>
 #include <thread>
 #include <mutex>
-#include "afxwin.h"
-#include "afxcmn.h"
-#include "afxmt.h"
 #include "../SerialPort/serialport.h"
 
 class SerialPort;
 
-class DataXchg {
+class Comm {
 public:
-	DataXchg(SerialPort *rs, uint8_t addr, int transitAddr, bool broadcast = false);
-	virtual ~DataXchg();
+	Comm(SerialPort *rs, uint8_t addr, int transitAddr, bool broadcast = false);
+	virtual ~Comm();
 
 	void setAddr(uint8_t addr);
 	void setPosition(int value);
@@ -32,11 +29,11 @@ public:
 	void setAddrCfg(uint8_t addr, uint8_t addrAlias);
 	void manualCfg(uint8_t cmd);
 
-	int getCntGood() const {
+	size_t getCntGood() const {
 		return cntGood_;
 	}
 
-	int getCntBad() const {
+	size_t getCntBad() const {
 		return cntBad_;
 	}
 
@@ -51,17 +48,11 @@ private:
 	void doWriteAddr();
 	void doManual();
 
-	bool writeParam(uint8_t id, int16_t value);
-	bool readParam(uint8_t id, int16_t &value);
+	bool writeParam(size_t id, int16_t value);
+	bool readParam(size_t id, int16_t &value);
 
-	bool request(uint8_t addr, uint8_t id, uint8_t *data, uint8_t dataSize, uint8_t *response, uint8_t &responseSize);
-	bool requestNoAnswer(uint8_t addr, uint8_t id, uint8_t *data, uint8_t dataSize);
-
-	enum {
-		msgWriteAddr,
-		msgSetAddr,
-		msgManual
-	};
+	bool request(uint8_t addr, uint8_t id, uint8_t *data, size_t dataSize, uint8_t *response, size_t &responseSize);
+	bool requestNoAnswer(uint8_t addr, uint8_t id, uint8_t *data, size_t dataSize);
 
 	std::thread *thread_;
 	volatile bool stop_;
@@ -69,17 +60,17 @@ private:
 
 	SerialPort *rs_;
 	
-	static const int bufferSize_;
+	static const size_t bufferSize_;
 	uint8_t *buffer_;
 
-	static const int buffer2Size_;
+	static const size_t buffer2Size_;
 	uint8_t *buffer2_;
 
 	uint8_t addr_;
 	int transitAddr_;
 
-	int cntGood_;
-	int cntBad_;
+	size_t cntGood_;
+	size_t cntBad_;
 
 	bool cfgread_;
 	

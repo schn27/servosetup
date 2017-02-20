@@ -325,7 +325,7 @@ void CServoSetupDlg::OnBnClickedCfgwrite() {
 	for (int i = 0, n = paramconfig_.getNumOfParams(); i < n; ++i) {
 		const ParamConfig::Param &param = paramconfig_.getParam(i);
 
-		std::istringstream ss(std::string(paramList_.GetItemText(i, 2)));
+		std::stringstream ss(std::string(paramList_.GetItemText(i, 2)));
 
 		double v = 0.0;
 		ss >> v;
